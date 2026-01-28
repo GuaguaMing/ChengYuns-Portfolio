@@ -1,17 +1,136 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="CHENG YUN | 混沌實驗室">
+  <main class="relative w-full h-screen bg-[#0a0a0a] overflow-hidden">
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+    <div class="relative z-10 flex flex-col items-start justify-end h-full p-10 pointer-events-none">
+      <h1 class="text-[12vw] font-black leading-[0.8] tracking-tighter uppercase mix-blend-difference">
+        Strange<br/>
+        <span class="text-yellow-400 rotate-2 inline-block">Nature</span>
+      </h1>
+      <div class="mt-8 bg-white text-black p-2 -rotate-1 font-mono text-sm pointer-events-auto cursor-help">
+        SUBJECT_01: FROGMOUTH / HYRAX / ANIME_CORE
+      </div>
+    </div>
+  </main>
+
+<script>
+  import * as THREE from 'three';
+
+  const container = document.getElementById('canvas-container');
+
+  if (container instanceof HTMLElement) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // 1. 建立更細緻的幾何體（增加分段數以利變形）
+    const geometry = new THREE.IcosahedronGeometry(2, 20); 
+    const material = new THREE.MeshStandardMaterial({ 
+      color: 0x222222, 
+      wireframe: true,
+      roughness: 0.1,
+      metalness: 0.8
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    // 2. 高級燈光：環境光 + 三點光源
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const blueLight = new THREE.PointLight(0x00ffff, 100, 50);
+    blueLight.position.set(5, 5, 5);
+    scene.add(blueLight);
+
+    const pinkLight = new THREE.PointLight(0xff00ff, 150, 50);
+    pinkLight.position.set(-5, -5, 5);
+    scene.add(pinkLight);
+
+    camera.position.z = 5;
+
+    // 3. 追蹤變數
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    window.addEventListener('mousemove', (event) => {
+      targetX = (event.clientX / window.innerWidth) * 2 - 1;
+      targetY = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    const animate = (time: number) => {
+      requestAnimationFrame(animate);
+
+      // 4. 平滑追蹤邏輯 (Lerp) - 產生 JUNNI 那種延遲感
+      mouseX += (targetX - mouseX) * 0.05;
+      mouseY += (targetY - mouseY) * 0.05;
+
+      mesh.rotation.y = mouseX * 0.5;
+      mesh.rotation.x = -mouseY * 0.5;
+
+      // 5. 讓物體像在呼吸 (簡單的頂點律動模擬)
+      const pulse = Math.sin(time * 0.002) * 0.1 + 0.9;
+      mesh.scale.set(pulse, pulse, pulse);
+
+      // 讓燈光也跟著動
+      blueLight.position.x = mouseX * 10;
+      pinkLight.position.y = mouseY * 10;
+
+      renderer.render(scene, camera);
+    };
+    animate(0);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+  </script>
+
+
+<div class="relative z-20 bg-yellow-400 border-y-4 border-black py-4 -rotate-1 scale-105 shadow-2xl">
+  <div class="flex whitespace-nowrap overflow-hidden font-black text-3xl text-black">
+    <div class="animate-marquee flex">
+      <span class="mx-8">3D ARTWORKS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">UI/UX PROJECTS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">2D ILLUSTRATIONS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">GAME DESIGN</span>
+      <span class="mx-8">✦</span>
+    </div>
+    <div class="animate-marquee flex" aria-hidden="true">
+      <span class="mx-8">3D ARTWORKS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">UI/UX PROJECTS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">2D ILLUSTRATIONS</span>
+      <span class="mx-8">✦</span>
+      <span class="mx-8">GAME DESIGN</span>
+      <span class="mx-8">✦</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+</style>
+
+</Layout>
