@@ -3,19 +3,117 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="CHENG YUN | 混沌實驗室">
-  <main class="relative w-full h-screen bg-[#0a0a0a] overflow-hidden">
-    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+  <main class="relative w-full min-h-screen bg-[#0a0a0a] overflow-x-hidden">
+    <!-- 背景 3D 畫布保持固定 -->
+    <div id="canvas-container" class="fixed inset-0 z-0 pointer-events-none"></div>
 
-    <div class="relative z-10 flex flex-col items-start justify-end h-full p-10 pointer-events-none">
-      <h1 class="text-[12vw] font-black leading-[0.8] tracking-tighter uppercase mix-blend-difference">
-        Strange<br/>
-        <span class="text-yellow-400 rotate-2 inline-block">Nature</span>
+    <!-- 主要內容區 -->
+    <div class="relative z-10 flex flex-col items-start pt-32 pb-20 px-6 md:px-20 min-h-screen justify-center">
+      <!-- 小標題 -->
+      <div class="text-yellow-400 font-mono text-sm md:text-base mb-4 tracking-widest uppercase mix-blend-difference">
+        UI Designer × Graduate Applicant
+      </div>
+
+      <!-- 大標題 -->
+      <h1 class="text-5xl md:text-8xl font-black leading-[1.1] tracking-tighter mix-blend-difference mb-8">
+        用設計讓科技<br/>
+        <span class="text-white italic">不再令長輩害怕</span>
       </h1>
-      <div class="mt-8 bg-white text-black p-2 -rotate-1 font-mono text-sm pointer-events-auto cursor-help">
-        SUBJECT_01: FROGMOUTH / HYRAX / ANIME_CORE
+
+      <!-- 自我介紹內文 -->
+      <p class="max-w-2xl text-lg md:text-xl text-gray-300 leading-relaxed mb-10 mix-blend-difference">
+        我是一位 UI 設計師，專注於無障礙設計與高齡使用者的數位介面研究。正申請研究所，探索 <span class="text-white font-bold">Gerontechnology × UIUX</span> 的跨域研究路徑。
+      </p>
+
+      <!-- Tags 標籤區 -->
+      <div class="flex flex-wrap gap-3 mb-12">
+        {['Gerontechnology', 'Inclusive Design', 'UIUX', '無障礙設計', '醫療 × 金融服務'].map(tag => (
+          <span class="px-3 py-1 border border-white/30 text-xs font-mono rounded-full hover:bg-white hover:text-black transition-colors cursor-default">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <!-- 按鈕區 -->
+      <div class="flex flex-wrap gap-6 pointer-events-auto">
+        <a href="#motivation" class="px-8 py-3 bg-white text-black font-bold border-2 border-black shadow-[4px_4px_0px_#facc15] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+          研究動機 →
+        </a>
+        <a href="#portfolio" class="px-8 py-3 bg-transparent text-white font-bold border-2 border-white hover:bg-white hover:text-black transition-all">
+          查看作品集
+        </a>
+      </div>
+    </div>
+
+    <!-- 數據顯示區 -->
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 px-6 md:px-20 py-20 border-y border-white/10 bg-black/50 backdrop-blur-sm">
+      <div class="flex flex-col">
+        <span class="text-6xl font-black text-yellow-400 mb-2">3+</span>
+        <span class="text-gray-400 font-mono">年 UI 設計經驗</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-6xl font-black text-white mb-2">無障礙</span>
+        <span class="text-gray-400 font-mono">醫療・金融・政府</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-6xl font-black text-white mb-2">WCAG</span>
+        <span class="text-gray-400 font-mono">2.1 / 2.2 實作</span>
+      </div>
+    </div>
+
+    <!-- 跑馬燈：僅保留這一條 -->
+    <div class="relative z-20 bg-yellow-400 border-y-4 border-black py-4 -rotate-1 scale-105 shadow-2xl my-20">
+      <div class="marquee-container flex whitespace-nowrap overflow-hidden font-black text-3xl text-black">
+        <div class="animate-marquee flex">
+          <span class="mx-8">INCLUSIVE DESIGN</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">ACCESSIBILITY</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">GERONTECHNOLOGY</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">USER RESEARCH</span>
+          <span class="mx-8">✦</span>
+        </div>
+        <!-- 第二組重複內容，用於達成無縫輪播 -->
+        <div class="animate-marquee flex" aria-hidden="true">
+          <span class="mx-8">INCLUSIVE DESIGN</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">ACCESSIBILITY</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">GERONTECHNOLOGY</span>
+          <span class="mx-8">✦</span>
+          <span class="mx-8">USER RESEARCH</span>
+          <span class="mx-8">✦</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 最底部說明文字 -->
+    <div class="relative z-10 px-6 md:px-20 pb-32">
+      <div class="max-w-3xl p-8 border-l-4 border-yellow-400 bg-white/5">
+        <p class="text-sm md:text-base text-gray-400 leading-loose italic">
+          這個網站本身就是研究。頁面頂部的無障礙工具列不是裝飾——它是我研究動機的活示範。字體縮放、高對比、減少動態效果，這些設定讓同一個介面服務不同需求的使用者。試試看切換看看。
+        </p>
       </div>
     </div>
   </main>
+
+<style>
+  /* 跑馬燈動畫 */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 20s linear infinite; /* 調整時間可控制速度 */
+  }
+
+  /* 當滑鼠懸停在容器上時，停止所有內部的跑馬燈動畫 */
+  .marquee-container:hover .animate-marquee {
+    animation-play-state: paused; /* 滑鼠懸停時暫停動畫 */
+  }
+</style>
 
 <script>
   import * as THREE from 'three';
@@ -96,41 +194,4 @@ import Layout from '../layouts/Layout.astro';
     });
   }
   </script>
-
-
-<div class="relative z-20 bg-yellow-400 border-y-4 border-black py-4 -rotate-1 scale-105 shadow-2xl">
-  <div class="flex whitespace-nowrap overflow-hidden font-black text-3xl text-black">
-    <div class="animate-marquee flex">
-      <span class="mx-8">3D ARTWORKS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">UI/UX PROJECTS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">2D ILLUSTRATIONS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">GAME DESIGN</span>
-      <span class="mx-8">✦</span>
-    </div>
-    <div class="animate-marquee flex" aria-hidden="true">
-      <span class="mx-8">3D ARTWORKS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">UI/UX PROJECTS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">2D ILLUSTRATIONS</span>
-      <span class="mx-8">✦</span>
-      <span class="mx-8">GAME DESIGN</span>
-      <span class="mx-8">✦</span>
-    </div>
-  </div>
-</div>
-
-<style>
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
-  }
-  .animate-marquee {
-    animation: marquee 20s linear infinite;
-  }
-</style>
-
 </Layout>
