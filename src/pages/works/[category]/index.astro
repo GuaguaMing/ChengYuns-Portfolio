@@ -1,4 +1,5 @@
 ---
+import { url } from '../../../lib/url';
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../../layouts/Layout.astro';
 import WorkCard from '../../../components/WorkCard.astro';
@@ -13,8 +14,8 @@ const { category, next } = Astro.props;
 const works = await getWorks(category.id);
 const caseList = cases(works);
 const miniList = minis(works);
-const tabs = [...categories.map((c) => ({ label: c.title, href: `/works/${c.id}/`, active: c.id === category.id })), { label: '其他歷程', href: '/archive/', active: false }];
-const nextLink = next ? { title: next.title, href: `/works/${next.id}/` } : { title: '其他 / 榮譽歷程', href: '/archive/' };
+const tabs = [...categories.map((c) => ({ label: c.title, href: url(`/works/${c.id}/`), active: c.id === category.id })), { label: '其他歷程', href: url('/archive/'), active: false }];
+const nextLink = next ? { title: next.title, href: url(`/works/${next.id}/`) } : { title: '其他 / 榮譽歷程', href: url('/archive/') };
 ---
 <Layout title={category.title} description={category.philosophy}>
   <section class="container-page flex flex-col gap-10 pt-16 pb-12 md:pt-20">

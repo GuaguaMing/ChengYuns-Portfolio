@@ -1,3 +1,4 @@
+import { url } from '../lib/url';
 export type HonorType = 'award' | 'certificate' | 'community' | 'campus';
 
 export const honorTypes: Record<HonorType, string> = {
@@ -28,7 +29,7 @@ export const honors: {
     title: '新一代設計展 現場觀眾票選最佳人氣獎',
     type: 'award',
     body: "畢業專題遊戲 Cat's Paw 參展；亦參與巴哈姆特 ACG 創作大賽。",
-    work: { label: "Cat's Paw", href: '/works/games/cats-paw/' },
+    work: { label: "Cat's Paw", href: url('/works/games/cats-paw/') },
   },
   {
     year: '2023',
@@ -36,7 +37,7 @@ export const honors: {
     type: 'award',
     body: '以「機蛙蛙」參賽第四屆大賽入圍。',
     images: ['hachao-finalist'],
-    work: { label: '機蛙蛙', href: '/works/physical/#jiwawa' },
+    work: { label: '機蛙蛙', href: url('/works/physical/#jiwawa') },
   },
   {
     year: '2023',

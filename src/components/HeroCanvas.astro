@@ -62,7 +62,7 @@ const models = heroModels.map(({ slug, base, scale = 1, offset = { x: 0, y: 0 },
       if (!cache.has(slug)) {
         cache.set(
           slug,
-          loader.loadAsync(`/models/${slug}.glb`).then(({ scene: obj }) => {
+          loader.loadAsync(`${import.meta.env.BASE_URL}models/${slug}.glb`).then(({ scene: obj }) => {
             obj.traverse((o) => o instanceof THREE.Mesh && o.geometry.attributes.color && (o.material = painted));
             const box = new THREE.Box3().setFromObject(obj);
             obj.position.sub(box.getCenter(new THREE.Vector3()));

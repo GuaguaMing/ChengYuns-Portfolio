@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
 import SectionHeader from '../components/SectionHeader.astro';
@@ -16,7 +17,7 @@ const domainCards = [
   ...categories.map((c) => {
     const list = cases(works.filter((w) => w.data.category === c.id));
     return {
-      href: `/works/${c.id}/`,
+      href: url(`/works/${c.id}/`),
       index: c.index,
       title: c.title,
       keywords: c.keywords,
@@ -25,7 +26,7 @@ const domainCards = [
     };
   }),
   {
-    href: '/archive/',
+    href: url('/archive/'),
     index: '04',
     title: '其他 / 榮譽歷程',
     keywords: 'Awards · Certificate · Community',
@@ -106,7 +107,7 @@ const domainCards = [
         <p class="max-w-2xl leading-[1.8]">
           我在研究、設計與工程的交界工作。從遊戲、玩具品牌到醫療與公共平台，目標始終一致：降低使用者的認知負擔、建立防錯機制，讓人能信任背後的系統。
         </p>
-        <Button href="/about/">認識我</Button>
+        <Button href={url('/about/')}>認識我</Button>
       </div>
     </div>
   </section>

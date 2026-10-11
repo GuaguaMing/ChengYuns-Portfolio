@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url';
 import { categories, profile } from '../data/site';
 ---
 <footer class="relative isolate overflow-hidden border-t-[1.5px] border-ink">
@@ -11,8 +12,8 @@ import { categories, profile } from '../data/site';
     </div>
     <div class="flex flex-col gap-3 text-sm">
       <p class="eyebrow">作品</p>
-      {categories.map((c) => <a href={`/works/${c.id}/`} class="hover:underline">{c.title}</a>)}
-      <a href="/archive/" class="hover:underline">其他歷程</a>
+      {categories.map((c) => <a href={url(`/works/${c.id}/`)} class="hover:underline">{c.title}</a>)}
+      <a href={url('/archive/')} class="hover:underline">其他歷程</a>
     </div>
     <div class="flex flex-col gap-3 text-sm">
       <p class="eyebrow">社群</p>
@@ -20,7 +21,7 @@ import { categories, profile } from '../data/site';
     </div>
     <div class="flex flex-col gap-3 text-sm">
       <p class="eyebrow">更多</p>
-      <a href="/about/" class="hover:underline">關於我</a>
+      <a href={url('/about/')} class="hover:underline">關於我</a>
       <a href={profile.cv} class="hover:underline">下載 CV ↓</a>
     </div>
   </div>

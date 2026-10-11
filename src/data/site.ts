@@ -1,9 +1,10 @@
+import { url } from '../lib/url';
 export const profile = {
   name: '蔡承芸',
   nameEn: 'Cheng Yun Tsai',
   role: 'UI/UX 設計師',
   email: 'pantxiketsai499@gmail.com',
-  cv: '/cv.pdf',
+  cv: url('/chengyun_CV.pdf'),
   socials: [
     { label: 'GitHub', href: 'https://github.com/guaguaming' },
     { label: 'Instagram @wywy_studio', href: 'https://instagram.com/wywy_studio' },
@@ -52,7 +53,7 @@ export const categories: {
 ];
 
 export const nav = [
-  ...categories.map((c) => ({ label: c.title, href: `/works/${c.id}/` })),
-  { label: '其他歷程', href: '/archive/' },
-  { label: '關於我', href: '/about/' },
+  ...categories.map((c) => ({ label: c.title, href: url(`/works/${c.id}/`) })),
+  { label: '其他歷程', href: url('/archive/') },
+  { label: '關於我', href: url('/about/') },
 ];
