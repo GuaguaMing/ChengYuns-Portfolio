@@ -1,0 +1,35 @@
+---
+import type { Work } from '../lib/works';
+import { getWorkMedia } from '../lib/media';
+import { lightboxData } from '../lib/lightbox';
+import Cover from './Cover.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+  work: Work;
+}
+const { work } = Astro.props;
+const { title, year, summary, tags, links } = work.data;
+const { cover, gallery } = getWorkMedia(work.id);
+const items = await lightboxData(gallery.length ? gallery : cover ? [{ src: cover, caption: title }] : []);
+---
+<article id={work.id} class="card flex w-full flex-col sm:w-[296px]">
+  <button
+    type="button"
+    class="group block aspect-square overflow-hidden rounded-t-[3px] border-b-[1.5px] border-ink bg-subtle text-left disabled:cursor-default"
+    data-lightbox={items}
+    data-title={title}
+    disabled={!cover}
+    aria-label={`檢視「${title}」圖片`}
+  >
+    <Cover src={cover} alt={title} widths={[320, 640]} sizes="296px" class="size-full transition duration-500 group-hover:scale-[1.04]" />
+  </button>
+  <div class="flex flex-col gap-2 px-5 pt-4 pb-5">
+    <div class="flex items-center gap-2">
+      <span class="font-mono text-xs font-medium">{year}</span>{tags[0] && <Tag>{tags[0]}</Tag>}
+    </div>
+    <h3 class="text-lg font-bold">{title}</h3>
+    <p class="text-[13px] leading-[1.6] text-muted">{summary}</p>
+    {links.map((l) => <a href={l.href} target="_blank" rel="noopener" class="text-[13px] font-medium underline underline-offset-4">{l.label} ↗</a>)}
+  </div>
+</article>

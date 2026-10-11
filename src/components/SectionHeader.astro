@@ -1,0 +1,17 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  desc?: string;
+  dark?: boolean;
+}
+const { eyebrow, title, desc, dark } = Astro.props;
+---
+<header class="flex flex-wrap items-end justify-between gap-6">
+  <div class="flex max-w-2xl flex-col gap-4">
+    <p class:list={['eyebrow', dark && '!text-ink']}>{eyebrow}</p>
+    <h2 class="text-3xl font-bold md:text-[40px]">{title}</h2>
+    {desc && <p class="leading-[1.7] text-muted">{desc}</p>}
+  </div>
+  <slot />
+</header>

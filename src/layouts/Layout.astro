@@ -1,63 +1,37 @@
 ---
-import '../styles/global.css'; 
-import AccessibilityWidget from '../components/AccessibilityWidget.astro';
-interface Props { title: string; }
-const { title } = Astro.props;
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { profile } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = `${profile.name}｜${profile.role} 作品集` } = Astro.props;
+const fullTitle = title ? `${title}｜${profile.name} Portfolio` : `${profile.name} ${profile.nameEn}｜Portfolio 2026`;
 ---
 <!doctype html>
 <html lang="zh-Hant">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <title>{title}</title>
-    </head>
-    <body class="bg-[#121212] text-white selection:bg-pink-500 font-sans leading-relaxed">
-        <!-- Global Navigation Bar -->
-        <nav class="fixed top-10 right-6 z-50 flex flex-col gap-4 items-end pointer-events-none">
-            <a href="#home" class="pointer-events-auto px-5 py-1.5 text-sm font-bold border-2 border-black bg-white text-black -rotate-2 shadow-[4px_4px_0px_black] hover:rotate-0 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200">
-                首頁
-            </a>
-            <a href="#about" class="pointer-events-auto px-5 py-1.5 text-sm font-bold border-2 border-black bg-yellow-400 text-black rotate-3 shadow-[4px_4px_0px_black] hover:rotate-0 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200">
-                關於
-            </a>
-            <a href="#motivation" class="pointer-events-auto px-5 py-1.5 text-sm font-bold border-2 border-black bg-cyan-400 text-black -rotate-1 shadow-[4px_4px_0px_black] hover:rotate-0 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200">
-                研究動機
-            </a>
-            <a href="#portfolio" class="pointer-events-auto px-5 py-1.5 text-sm font-bold border-2 border-black bg-purple-600 text-white rotate-2 shadow-[4px_4px_0px_black] hover:rotate-0 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200">
-                作品集
-            </a>
-            <a href="#contact" class="pointer-events-auto px-5 py-1.5 text-sm font-bold border-2 border-black bg-[#FF00FF] text-white -rotate-3 shadow-[4px_4px_0px_black] hover:rotate-0 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-200">
-                聯絡
-            </a>
-            
-            <div class="mt-4 mr-1 text-xs font-black tracking-widest mix-blend-difference text-white pointer-events-auto uppercase">
-                CY_LAB © 2026
-            </div>
-        </nav>
-
-        <slot />
-
-        <style is:global>
-            /* 讓滾動條也變得黑黑的，符合你的風格 */
-            ::-webkit-scrollbar {
-                width: 8px;
-            }
-            ::-webkit-scrollbar-track {
-                background: #121212;
-            }
-            ::-webkit-scrollbar-thumb {
-                background: #333;
-                border-radius: 10px;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background: #444;
-            }
-            
-            html {
-                cursor: default;
-                scroll-behavior: smooth;
-            }
-        </style>
-         <AccessibilityWidget />
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap"
+    />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-sun focus:px-4 focus:py-2">跳到主要內容</a>
+    <Nav />
+    <main id="main"><slot /></main>
+    <Footer />
+    <Lightbox />
+  </body>
 </html>

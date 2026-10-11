@@ -1,0 +1,155 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Button from '../../../components/Button.astro';
+import Cover from '../../../components/Cover.astro';
+import Gallery from '../../../components/Gallery.astro';
+import Tag from '../../../components/Tag.astro';
+import Badge from '../../../components/Badge.astro';
+import { categories } from '../../../data/site';
+import { getWorks, cases, workHref } from '../../../lib/works';
+import { getWorkMedia } from '../../../lib/media';
+
+export const getStaticPaths = (async () => {
+  const all = await getWorks();
+  return categories.flatMap((c) => {
+    const list = cases(all.filter((w) => w.data.category === c.id));
+    return list.map((work, i) => ({
+      params: { category: c.id, slug: work.id },
+      props: { work, category: c, index: i, prev: list[i - 1], next: list[i + 1], all },
+    }));
+  });
+}) satisfies GetStaticPaths;
+
+const { work, category, index, prev, next, all } = Astro.props;
+const d = work.data;
+const { Content, headings } = await render(work);
+const toc = headings.filter((h) => h.depth === 2);
+const { cover, gallery } = getWorkMedia(work.id);
+const related = d.related.map((id) => all.find((w) => w.id === id)).filter((w) => w !== undefined);
+const meta = [
+  ['Role 角色', d.role],
+  ['Team 團隊', d.team],
+  ['Timeline 週期', d.period ?? d.year],
+].filter(([, v]) => v);
+---
+<Layout title={d.title} description={d.summary}>
+  <section class="container-page flex flex-col gap-10 pt-14 pb-12">
+    <p class="font-mono text-[13px] text-muted">
+      <a href={`/works/${category.id}/`} class="hover:text-ink">作品 / {category.title}</a> / {d.title}
+    </p>
+    <div class="flex flex-col gap-5">
+      <div class="flex flex-wrap items-center gap-3">
+        <Badge>CASE {String(index + 1).padStart(2, '0')}</Badge>{d.tags.map((t) => <Tag>{t}</Tag>)}
+      </div>
+      <h1 class="text-4xl font-bold md:text-[64px] md:leading-[1.15]">{d.title}</h1>
+      <p class="max-w-3xl text-xl leading-[1.6] text-muted">{d.summary}</p>
+    </div>
+    {d.links.length > 0 && (
+      <div class="flex flex-wrap gap-3">{d.links.map((l, i) => <Button href={l.href} variant={i === 0 ? 'primary' : 'secondary'}>{l.label}</Button>)}</div>
+    )}
+    <div class="card aspect-[16/8]">
+      <Cover src={cover} alt={d.title} eager widths={[800, 1280, 1920]} sizes="(min-width: 1440px) 1280px, 100vw" class="size-full" />
+    </div>
+    <dl class="grid gap-6 border-t-[1.5px] border-ink pt-6 sm:grid-cols-2 lg:grid-cols-4">
+      {meta.map(([k, v]) => (
+        <div class="flex flex-col gap-2"><dt class="font-mono text-xs text-muted">{k}</dt><dd class="text-[17px] font-medium">{v}</dd></div>
+      ))}
+      {d.tools.length > 0 && (
+        <div class="flex flex-col gap-2"><dt class="font-mono text-xs text-muted">Tools 工具</dt><dd class="flex flex-wrap gap-1.5">{d.tools.map((t) => <Tag>{t}</Tag>)}</dd></div>
+      )}
+    </dl>
+  </section>
+
+  <section class="container-page grid gap-12 pb-24 lg:grid-cols-[260px_1fr]">
+    <nav aria-label="本頁目錄" class="hidden lg:block">
+      <div class="sticky top-28 flex flex-col gap-3.5">
+        <p class="eyebrow">Contents</p>
+        {toc.map((h, i) => (
+          <a href={`#${h.slug}`} class="flex items-center gap-2.5 text-sm text-muted hover:text-ink">
+            <span class="h-1 w-4 bg-sun" aria-hidden="true"></span>{String(i + 1).padStart(2, '0')} {h.text}
+          </a>
+        ))}
+        {gallery.length > 0 && <a href="#gallery" class="flex items-center gap-2.5 text-sm text-muted hover:text-ink"><span class="h-1 w-4 bg-sun" aria-hidden="true"></span>作品圖片</a>}
+      </div>
+    </nav>
+    <div class="flex min-w-0 flex-col gap-20">
+      <article class="prose-case"><Content /></article>
+      {gallery.length > 0 && (
+        <section id="gallery" class="flex scroll-mt-24 flex-col gap-6">
+          <p class="eyebrow">Gallery</p>
+          <h2 class="text-3xl font-bold">作品圖片</h2>
+          <Gallery items={gallery} title={d.title} />
+        </section>
+      )}
+      {related.length > 0 && (
+        <section class="flex flex-col gap-6">
+          <p class="eyebrow">Related / IP 延伸</p>
+          <h2 class="text-3xl font-bold">相關專案</h2>
+          <div class="grid gap-6 md:grid-cols-2">
+            {related.map((r) => (
+              <a href={workHref(r)} class="card flex items-center gap-4 p-4 transition">
+                <Cover src={getWorkMedia(r.id).cover} alt={r.data.title} widths={[240]} sizes="120px" class="h-20 w-[120px] shrink-0 rounded-lg" />
+                <span class="flex flex-col gap-1"><span class="text-xl font-bold">{r.data.title}</span><span class="text-[13px] text-muted">{categories.find((c) => c.id === r.data.category)?.title} · {r.data.year}</span></span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  </section>
+
+  <nav aria-label="上一個／下一個專案" class="container-page grid gap-6 pb-28 md:grid-cols-2">
+    {prev ? (
+      <a href={workHref(prev)} class="card flex flex-col gap-1.5 p-6 transition"><span class="font-mono text-xs text-muted">← PREVIOUS</span><span class="text-xl font-bold">{prev.data.title}</span></a>
+    ) : <span />}
+    {next && (
+      <a href={workHref(next)} class="card flex flex-col items-end gap-1.5 p-6 text-right transition"><span class="font-mono text-xs text-muted">NEXT →</span><span class="text-xl font-bold">{next.data.title}</span></a>
+    )}
+  </nav>
+</Layout>
+
+<style is:global>
+  .prose-case {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 52rem;
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  .prose-case h2 {
+    margin-top: 3rem;
+    scroll-margin-top: 6rem;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .prose-case h2:first-child {
+    margin-top: 0;
+  }
+  .prose-case ul,
+  .prose-case ol {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
+  }
+  .prose-case ul {
+    list-style: square;
+  }
+  .prose-case ol {
+    list-style: decimal;
+  }
+  .prose-case li::marker {
+    color: var(--color-muted);
+  }
+  .prose-case a {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .prose-case strong {
+    background: linear-gradient(transparent 55%, var(--color-sun) 0 92%, transparent 0);
+  }
+</style>

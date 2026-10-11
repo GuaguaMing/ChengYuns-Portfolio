@@ -1,0 +1,31 @@
+---
+import { Image } from 'astro:assets';
+import type { Media } from '../lib/media';
+import { lightboxData } from '../lib/lightbox';
+
+interface Props {
+  items: Media[];
+  title: string;
+}
+const { items, title } = Astro.props;
+const data = JSON.parse(await lightboxData(items));
+---
+<div class="columns-1 gap-4 sm:columns-2 lg:columns-3">
+  {
+    items.map((m, i) => (
+      <figure class="mb-4 break-inside-avoid">
+        <button
+          type="button"
+          class="block w-full overflow-hidden rounded-[3px] border-[1.5px] border-ink bg-subtle"
+          data-lightbox={JSON.stringify(data)}
+          data-index={i}
+          data-title={title}
+          aria-label={`放大檢視：${m.caption}`}
+        >
+          <Image src={m.src} alt={m.caption} widths={[400, 800]} sizes="(min-width: 1024px) 33vw, 100vw" class="w-full transition duration-500 hover:scale-[1.03]" />
+        </button>
+        <figcaption class="mt-2 text-[13px] text-muted">{m.caption}</figcaption>
+      </figure>
+    ))
+  }
+</div>

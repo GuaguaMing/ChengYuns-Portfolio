@@ -1,0 +1,158 @@
+---
+// 首頁 Hero 中央舞台：輪播 public/models/ 下的 3D 模型（清單在 src/data/models.ts），每個停留 HOLD 毫秒
+// 模型固定在各自的 base 角度，隨滑鼠位置微幅傾斜；scale / offset / exposure 見 src/data/models.ts
+import { heroModels } from '../data/models';
+const models = heroModels.map(({ slug, base, scale = 1, offset = { x: 0, y: 0 }, exposure = 1 }) => ({ slug, base, scale, offset, exposure }));
+---
+<div aria-hidden="true" class="pointer-events-none absolute inset-0" data-hero-3d data-models={JSON.stringify(models)}>
+  <canvas data-canvas class="absolute inset-0 size-full"></canvas>
+  <!-- 網點版疊印在模型上面 -->
+  <div class="overprint absolute top-1/2 left-1/2 aspect-square h-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full halftone-mint-light riso-grain"></div>
+  <div class="overprint absolute top-1/2 left-1/2 aspect-square h-[52%] -translate-x-[30%] -translate-y-[18%] rounded-full halftone-sun-light riso-grain"></div>
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+
+  type Entry = { slug: string; base: { x: number; y: number }; scale: number; offset: { x: number; y: number }; exposure: number };
+
+  const HOLD = 7700; // 每個模型停留時間
+  const SWAP = 500; // 縮小 → 換模型 → 放大，各半
+  const TILT = { x: 0.12, y: 0.25 }; // 滑鼠帶動的最大偏移（弧度）
+
+  const root = document.querySelector<HTMLElement>('[data-hero-3d]');
+  const canvas = root?.querySelector<HTMLCanvasElement>('[data-canvas]');
+
+  if (root && canvas) {
+    const entries: Entry[] = JSON.parse(root.dataset.models!);
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.set(0, 0.4, 6);
+    camera.lookAt(0, 0, 0);
+
+    // 光線偏柔，tone mapping 壓高光，淺色模型才不會過曝發白
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xd8f5ef, 0.6));
+    const key = new THREE.DirectionalLight(0xffffff, 1.8);
+    key.position.set(3, 4, 5);
+    scene.add(key);
+
+    const env = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    envScene.background = new THREE.Color(0xf1f5f9);
+    envScene.add(new THREE.HemisphereLight(0xffffff, 0x65ffe3, 3));
+    scene.environment = env.fromScene(envScene).texture;
+    scene.environmentIntensity = 0.35;
+
+    const pivot = new THREE.Group();
+    scene.add(pivot);
+
+    // 模型的顏色都存在頂點色（COLOR_0），沒有貼圖；統一用不透明的霧面材質
+    const painted = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75 });
+
+    // 載入過的留在快取；每個模型置中並縮放到同樣大小
+    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+    const cache = new Map<string, Promise<THREE.Object3D>>();
+    const load = ({ slug, scale }: Entry) => {
+      if (!cache.has(slug)) {
+        cache.set(
+          slug,
+          loader.loadAsync(`/models/${slug}.glb`).then(({ scene: obj }) => {
+            obj.traverse((o) => o instanceof THREE.Mesh && o.geometry.attributes.color && (o.material = painted));
+            const box = new THREE.Box3().setFromObject(obj);
+            obj.position.sub(box.getCenter(new THREE.Vector3()));
+            const holder = new THREE.Group().add(obj);
+            holder.scale.setScalar((5.6 * scale) / box.getSize(new THREE.Vector3()).length());
+            return holder;
+          }),
+        );
+      }
+      return cache.get(slug)!;
+    };
+
+    let index = 0;
+    let base = entries[0].base;
+    let swapStart = -1;
+    let incoming: THREE.Object3D | null = null;
+
+    const show = (obj: THREE.Object3D) => {
+      pivot.clear();
+      pivot.add(obj);
+      const entry = entries[index];
+      base = entry.base;
+      pivot.position.set(entry.offset.x, entry.offset.y, 0);
+      renderer.toneMappingExposure = entry.exposure;
+      if (reduceMotion) pivot.rotation.set(base.x, base.y, 0);
+    };
+
+    const advance = () => {
+      if (document.hidden || swapStart >= 0) return;
+      const next = (index + 1) % entries.length;
+      load(entries[next])
+        .then((obj) => {
+          index = next;
+          if (reduceMotion) show(obj);
+          else {
+            incoming = obj;
+            swapStart = performance.now();
+          }
+          load(entries[(index + 1) % entries.length]); // 預載下一個
+        })
+        .catch(() => entries.splice(next, 1)); // 載入失敗就跳過這個模型
+    };
+
+    load(entries[0]).then((obj) => {
+      show(obj);
+      pivot.rotation.set(base.x, base.y, 0);
+      if (entries.length > 1) {
+        load(entries[1]);
+        setInterval(advance, HOLD);
+      }
+    });
+
+    // 滑鼠位置正規化到 -1 ~ 1，模型緩動追隨
+    const pointer = { x: 0, y: 0 };
+    if (!reduceMotion) {
+      addEventListener('pointermove', (e) => {
+        pointer.x = (e.clientX / innerWidth) * 2 - 1;
+        pointer.y = (e.clientY / innerHeight) * 2 - 1;
+      });
+    }
+
+    const resize = () => {
+      const { clientWidth: w, clientHeight: h } = canvas;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      // 直式畫面（手機）以寬度為準，鏡頭往後拉，模型才不會撐出畫面
+      camera.position.z = 6 / Math.min(1, camera.aspect);
+      camera.updateProjectionMatrix();
+    };
+    new ResizeObserver(resize).observe(canvas);
+
+    const ease = (t: number) => t * t * (3 - 2 * t);
+    const frame = (now: number) => {
+      if (swapStart >= 0) {
+        const t = Math.min((now - swapStart) / SWAP, 1);
+        if (t >= 0.5 && incoming) {
+          show(incoming);
+          incoming = null;
+        }
+        pivot.scale.setScalar(ease(Math.abs(1 - 2 * t)));
+        if (t === 1) swapStart = -1;
+      }
+      if (!reduceMotion) {
+        pivot.rotation.x += (base.x + pointer.y * TILT.x - pivot.rotation.x) * 0.06;
+        pivot.rotation.y += (base.y + pointer.x * TILT.y - pivot.rotation.y) * 0.06;
+      }
+      renderer.render(scene, camera);
+    };
+
+    // Hero 不在畫面內時停止渲染
+    new IntersectionObserver(([e]) => renderer.setAnimationLoop(e.isIntersecting ? frame : null)).observe(root);
+  }
+</script>

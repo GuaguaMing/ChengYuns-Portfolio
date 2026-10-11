@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Placeholder from '../components/Placeholder.astro';
+import Tag from '../components/Tag.astro';
+import { honors, honorTypes } from '../data/honors';
+import { getHonorImage } from '../lib/media';
+import { lightboxData } from '../lib/lightbox';
+
+const rows = await Promise.all(
+  honors.map(async (h) => {
+    const media = (h.images ?? []).map((n) => ({ src: getHonorImage(n), caption: '' })).filter((m) => m.src !== undefined) as { src: ImageMetadata; caption: string }[];
+    return { ...h, thumb: media[0]?.src, lightbox: media.length ? await lightboxData(media) : undefined };
+  }),
+);
+const filters = [['all', '全部 All'], ...Object.entries(honorTypes)];
+import type { ImageMetadata } from 'astro';
+---
+<Layout title="其他 / 榮譽歷程" description="證照、獎項、社會參與與校務經歷。">
+  <section class="container-page flex flex-col gap-8 pt-16 pb-10 md:pt-20">
+    <p class="font-mono text-[13px] text-muted">作品 / 其他歷程</p>
+    <SectionHeader eyebrow="04 — Archive" title="其他 / 榮譽歷程" desc="證照、獎項、社會參與與校務經歷的精簡彙整。作品類獎項連結到對應案例頁，證書點擊以 Lightbox 檢視。" />
+    <div class="flex flex-wrap gap-2" role="group" aria-label="篩選類別">
+      {filters.map(([id, label], i) => (
+        <button type="button" data-filter={id} aria-pressed={i === 0 ? 'true' : 'false'} class="rounded-full border-[1.5px] border-ink/30 px-4 py-2 text-sm font-medium aria-pressed:border-ink aria-pressed:bg-sun aria-pressed:misreg-mint">
+          {label}
+        </button>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-page flex flex-col gap-4 pb-28">
+    {rows.map((h) => (
+      <article data-type={h.type} class="card flex flex-col gap-5 p-4 transition before:!translate-x-0 before:!translate-y-0 before:opacity-0 hover:before:!translate-x-[6px] hover:before:!translate-y-[6px] hover:before:opacity-100 sm:flex-row sm:items-center sm:gap-8 sm:pr-8">
+        {h.thumb ? (
+          <button type="button" data-lightbox={h.lightbox} data-title={h.title} class="h-[100px] w-full shrink-0 overflow-hidden rounded-[3px] border border-ink/20 bg-subtle sm:w-40" aria-label={`檢視「${h.title}」證書`}>
+            <Image src={h.thumb} alt="" widths={[320]} sizes="160px" class="size-full object-cover object-top" />
+          </button>
+        ) : (
+          <Placeholder label="—" class="hidden h-[100px] w-40 shrink-0 rounded-xl sm:flex" />
+        )}
+        <span class="w-28 shrink-0 font-mono text-sm font-medium">{h.year}</span>
+        <div class="flex flex-1 flex-col gap-2">
+          <div class="flex flex-wrap items-center gap-3"><h2 class="text-lg font-bold">{h.title}</h2><Tag>{honorTypes[h.type]}</Tag></div>
+          <p class="text-[15px] text-muted">{h.body}</p>
+        </div>
+        {h.work && <a href={h.work.href} class="misreg self-start rounded-full border-[1.5px] border-ink bg-mint px-3 py-1.5 text-[13px] font-medium sm:self-center">→ {h.work.label}</a>}
+      </article>
+    ))}
+  </section>
+</Layout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const rows = document.querySelectorAll<HTMLElement>('[data-type]');
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter;
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      rows.forEach((r) => (r.hidden = f !== 'all' && r.dataset.type !== f));
+    }),
+  );
+</script>

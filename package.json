@@ -1,21 +1,24 @@
 {
-  "name": "myprotfolio",
+  "name": "chengyun-portfolio",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "models": "node scripts/convert-models.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^6.1.5",
-    "lil-gui": "^0.21.0",
     "tailwindcss": "^4.1.18",
     "three": "^0.182.0"
   },
   "devDependencies": {
-    "@types/three": "^0.182.0"
+    "@gltf-transform/cli": "^4.5.1",
+    "@gltf-transform/core": "^4.5.1",
+    "@types/three": "^0.182.0",
+    "fbx2gltf": "^0.9.7-p1"
   }
 }

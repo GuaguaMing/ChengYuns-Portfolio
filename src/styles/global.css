@@ -1,1 +1,152 @@
 @import "tailwindcss";
+
+/*
+ * Riso 雙色印刷系統
+ * 兩個專色版：黃 sun（網角 71.6°）＋ 藍 mint（網角 18.4°），疊印 multiply 得第三色 overprint。
+ * ink 為內文可讀性保留的「墨版」，只用在文字與線條。
+ */
+@theme {
+  --color-canvas: #f3eee1;
+  --color-surface: #f7f3e8;
+  --color-subtle: #ebe4d2;
+  --color-line: #d6ccb6;
+  --color-ink: #0f172a;
+  --color-muted: #5f5b52;
+  --color-mint: #65ffe3;
+  --color-sun: #ffd000;
+  --color-overprint: #65d000;
+
+  --font-sans: "Space Grotesk", "Noto Sans TC", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* 硬邊錯版陰影：黃版往右下偏 */
+  --shadow-card: 3px 3px 0 var(--color-sun);
+}
+
+:root {
+  --dots-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cg fill='%23ffd000'%3E%3Ccircle cx='0' cy='0' r='1.25'/%3E%3Ccircle cx='0' cy='10' r='1.25'/%3E%3Ccircle cx='10' cy='0' r='1.25'/%3E%3Ccircle cx='10' cy='10' r='1.25'/%3E%3Ccircle cx='1' cy='3' r='1.25'/%3E%3Ccircle cx='11' cy='3' r='1.25'/%3E%3Ccircle cx='2' cy='6' r='1.25'/%3E%3Ccircle cx='3' cy='-1' r='1.25'/%3E%3Ccircle cx='3' cy='9' r='1.25'/%3E%3Ccircle cx='4' cy='2' r='1.25'/%3E%3Ccircle cx='5' cy='5' r='1.25'/%3E%3Ccircle cx='6' cy='8' r='1.25'/%3E%3Ccircle cx='7' cy='1' r='1.25'/%3E%3Ccircle cx='7' cy='11' r='1.25'/%3E%3Ccircle cx='8' cy='4' r='1.25'/%3E%3Ccircle cx='-1' cy='7' r='1.25'/%3E%3Ccircle cx='9' cy='7' r='1.25'/%3E%3C/g%3E%3C/svg%3E");
+  --dots-mint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cg fill='%2365ffe3'%3E%3Ccircle cx='0' cy='0' r='1.25'/%3E%3Ccircle cx='0' cy='10' r='1.25'/%3E%3Ccircle cx='10' cy='0' r='1.25'/%3E%3Ccircle cx='10' cy='10' r='1.25'/%3E%3Ccircle cx='3' cy='1' r='1.25'/%3E%3Ccircle cx='3' cy='11' r='1.25'/%3E%3Ccircle cx='6' cy='2' r='1.25'/%3E%3Ccircle cx='-1' cy='3' r='1.25'/%3E%3Ccircle cx='9' cy='3' r='1.25'/%3E%3Ccircle cx='2' cy='4' r='1.25'/%3E%3Ccircle cx='5' cy='5' r='1.25'/%3E%3Ccircle cx='8' cy='6' r='1.25'/%3E%3Ccircle cx='1' cy='7' r='1.25'/%3E%3Ccircle cx='11' cy='7' r='1.25'/%3E%3Ccircle cx='4' cy='8' r='1.25'/%3E%3Ccircle cx='7' cy='-1' r='1.25'/%3E%3Ccircle cx='7' cy='9' r='1.25'/%3E%3C/g%3E%3C/svg%3E");
+  --dots-sun-solid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cg fill='%23ffd000'%3E%3Ccircle cx='0' cy='0' r='1.62'/%3E%3Ccircle cx='0' cy='10' r='1.62'/%3E%3Ccircle cx='10' cy='0' r='1.62'/%3E%3Ccircle cx='10' cy='10' r='1.62'/%3E%3Ccircle cx='1' cy='3' r='1.62'/%3E%3Ccircle cx='11' cy='3' r='1.62'/%3E%3Ccircle cx='2' cy='6' r='1.62'/%3E%3Ccircle cx='3' cy='-1' r='1.62'/%3E%3Ccircle cx='3' cy='9' r='1.62'/%3E%3Ccircle cx='4' cy='2' r='1.62'/%3E%3Ccircle cx='5' cy='5' r='1.62'/%3E%3Ccircle cx='6' cy='8' r='1.62'/%3E%3Ccircle cx='7' cy='1' r='1.62'/%3E%3Ccircle cx='7' cy='11' r='1.62'/%3E%3Ccircle cx='8' cy='4' r='1.62'/%3E%3Ccircle cx='-1' cy='7' r='1.62'/%3E%3Ccircle cx='9' cy='7' r='1.62'/%3E%3C/g%3E%3C/svg%3E");
+  --dots-mint-solid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cg fill='%2365ffe3'%3E%3Ccircle cx='0' cy='0' r='1.62'/%3E%3Ccircle cx='0' cy='10' r='1.62'/%3E%3Ccircle cx='10' cy='0' r='1.62'/%3E%3Ccircle cx='10' cy='10' r='1.62'/%3E%3Ccircle cx='3' cy='1' r='1.62'/%3E%3Ccircle cx='3' cy='11' r='1.62'/%3E%3Ccircle cx='6' cy='2' r='1.62'/%3E%3Ccircle cx='-1' cy='3' r='1.62'/%3E%3Ccircle cx='9' cy='3' r='1.62'/%3E%3Ccircle cx='2' cy='4' r='1.62'/%3E%3Ccircle cx='5' cy='5' r='1.62'/%3E%3Ccircle cx='8' cy='6' r='1.62'/%3E%3Ccircle cx='1' cy='7' r='1.62'/%3E%3Ccircle cx='11' cy='7' r='1.62'/%3E%3Ccircle cx='4' cy='8' r='1.62'/%3E%3Ccircle cx='7' cy='-1' r='1.62'/%3E%3Ccircle cx='7' cy='9' r='1.62'/%3E%3C/g%3E%3C/svg%3E");
+  /* 米白無塗佈紙：細纖維＋紙粒 */
+  --tex-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .37 0 0 0 0 .28 0 0 0 -1.4 .86'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='.03 .05' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .36 0 0 0 -14 1.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.22'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.28'/%3E%3C/svg%3E");
+  /* 油墨顆粒與針孔（mask 用，透明處露出紙色） */
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -4 3.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* 滾筒橫紋／上墨不均（低頻、水平拉長） */
+  --tex-roller: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0025 .04' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -.9 1.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
+  --misreg-x: 2px;
+  --misreg-y: 1.5px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    /* 紙紋與滾筒橫紋只在最底層，不蓋到任何元件；文字不加任何效果 */
+    background-image:
+      repeating-linear-gradient(180deg, transparent 0 37px, rgb(60 48 20 / 0.035) 37px 39px, transparent 39px 83px, rgb(60 48 20 / 0.025) 83px 84px),
+      var(--tex-paper);
+    background-size: auto, 320px;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ink;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1440px] px-4 md:px-10 xl:px-20;
+  }
+  .eyebrow {
+    @apply font-mono text-[13px] font-medium tracking-[0.1em] text-muted uppercase;
+  }
+  /* 卡片：紙上墨線框，背後是錯開的藍版網點 */
+  .card {
+    position: relative;
+    isolation: isolate;
+    border: 1.5px solid var(--color-ink);
+    border-radius: 4px;
+  }
+  /* ::after 是紙面、::before 是錯開的網點版；負 z-index 會蓋過卡片本身背景，所以紙面另開一層 */
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 3px;
+    background: var(--color-surface);
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    z-index: -2;
+    border-radius: inherit;
+    background: var(--dots-mint) 0 0 / 11px;
+    transform: translate(7px, 7px);
+    transition: transform 0.25s;
+    -webkit-mask: var(--tex-grain);
+    mask: var(--tex-grain);
+  }
+  :is(a, button).card:hover::before {
+    transform: translate(11px, 11px);
+  }
+}
+
+@utility riso-grain {
+  -webkit-mask: var(--tex-grain) 0 0 / 180px, var(--tex-roller) 0 0 / 1200px 400px;
+  -webkit-mask-composite: source-in;
+  mask: var(--tex-grain) 0 0 / 180px, var(--tex-roller) 0 0 / 1200px 400px;
+  mask-composite: intersect;
+}
+/* 網點版：黃 71.6° / 藍 18.4° */
+@utility halftone-sun {
+  background: var(--dots-sun-solid) 0 0 / 11px;
+}
+@utility halftone-mint {
+  background: var(--dots-mint-solid) 0 0 / 11px;
+}
+@utility halftone-sun-light {
+  background: var(--dots-sun) 0 0 / 13px;
+}
+@utility halftone-mint-light {
+  background: var(--dots-mint) 0 0 / 13px;
+}
+/* 網點填色的大字：網點只印在字形內 */
+@utility halftone-text-sun {
+  background: var(--dots-sun-solid) 0 0 / 11px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility halftone-text-mint {
+  background: var(--dots-mint-solid) 0 0 / 11px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* 疊印：兩版相疊才會出現第三色 */
+@utility overprint {
+  mix-blend-mode: multiply;
+}
+/* 色塊錯版：另一版偏移 */
+@utility misreg {
+  box-shadow: var(--misreg-x) var(--misreg-y) 0 var(--color-sun);
+}
+@utility misreg-mint {
+  box-shadow: calc(var(--misreg-x) * -1) var(--misreg-y) 0 var(--color-mint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

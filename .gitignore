@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# 原始資料（含個資，不上傳）
+referances/
+
+# 3D 原始檔（FBX 太大，不上傳；轉檔後的 GLB 在 public/models/）
+models-src/

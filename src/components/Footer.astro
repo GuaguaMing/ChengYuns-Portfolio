@@ -1,0 +1,31 @@
+---
+import { categories, profile } from '../data/site';
+---
+<footer class="relative isolate overflow-hidden border-t-[1.5px] border-ink">
+  <div aria-hidden="true" class="absolute -right-24 -bottom-32 -z-10 size-[420px] rounded-full halftone-mint-light riso-grain"></div>
+  <div class="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <div class="flex flex-col items-start gap-5">
+      <span class="text-6xl font-bold" aria-hidden="true">Ψ</span>
+      <p class="text-lg font-bold">一起把想法變成可互動的系統。</p>
+      <a href={`mailto:${profile.email}`} class="misreg rounded-full border-[1.5px] border-ink bg-mint px-5 py-2.5 text-sm font-bold">{profile.email} →</a>
+    </div>
+    <div class="flex flex-col gap-3 text-sm">
+      <p class="eyebrow">作品</p>
+      {categories.map((c) => <a href={`/works/${c.id}/`} class="hover:underline">{c.title}</a>)}
+      <a href="/archive/" class="hover:underline">其他歷程</a>
+    </div>
+    <div class="flex flex-col gap-3 text-sm">
+      <p class="eyebrow">社群</p>
+      {profile.socials.map((s) => <a href={s.href} target="_blank" rel="noopener" class="hover:underline">{s.label}</a>)}
+    </div>
+    <div class="flex flex-col gap-3 text-sm">
+      <p class="eyebrow">更多</p>
+      <a href="/about/" class="hover:underline">關於我</a>
+      <a href={profile.cv} class="hover:underline">下載 CV ↓</a>
+    </div>
+  </div>
+  <div class="container-page flex flex-wrap justify-between gap-2 border-t border-ink/25 py-6 font-mono text-xs text-muted">
+    <span>Ψ © 2026 {profile.nameEn} {profile.name}. All rights reserved.</span>
+    <span>Built with Astro · Three.js</span>
+  </div>
+</footer>

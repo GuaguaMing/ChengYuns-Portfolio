@@ -1,0 +1,57 @@
+---
+// 全站共用 Lightbox：任何帶 data-lightbox='[{src,caption}]' 的按鈕點擊即開啟
+---
+<dialog id="lightbox" class="m-auto max-h-[92vh] w-[min(1200px,94vw)] bg-transparent p-0 backdrop:bg-ink/85">
+  <div class="flex flex-col items-center gap-3">
+    <img data-lb-img alt="" class="max-h-[80vh] w-auto max-w-full rounded-lg bg-surface object-contain" />
+    <div class="flex w-full items-center justify-between gap-4 text-surface">
+      <button type="button" data-lb-prev class="rounded-full border border-surface/40 px-4 py-2" aria-label="上一張">←</button>
+      <p data-lb-caption class="text-center text-sm"></p>
+      <button type="button" data-lb-next class="rounded-full border border-surface/40 px-4 py-2" aria-label="下一張">→</button>
+    </div>
+    <button type="button" data-lb-close class="absolute top-0 right-0 rounded-full bg-surface px-3 py-1 text-sm font-bold" aria-label="關閉">✕</button>
+  </div>
+</dialog>
+
+<script>
+  type Item = { src: string; caption: string };
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement;
+  const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+  const caption = dialog.querySelector<HTMLElement>('[data-lb-caption]')!;
+  const prev = dialog.querySelector<HTMLButtonElement>('[data-lb-prev]')!;
+  const next = dialog.querySelector<HTMLButtonElement>('[data-lb-next]')!;
+  let items: Item[] = [];
+  let index = 0;
+  let title = '';
+
+  const show = () => {
+    const it = items[index];
+    img.src = it.src;
+    img.alt = it.caption || title;
+    caption.textContent = `${title}${it.caption ? ' — ' + it.caption : ''}  (${index + 1}/${items.length})`;
+    prev.hidden = next.hidden = items.length < 2;
+  };
+  const step = (d: number) => {
+    index = (index + d + items.length) % items.length;
+    show();
+  };
+
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-lightbox]');
+    if (!trigger) return;
+    items = JSON.parse(trigger.dataset.lightbox || '[]');
+    if (!items.length) return;
+    index = Number(trigger.dataset.index || 0);
+    title = trigger.dataset.title || '';
+    show();
+    dialog.showModal();
+  });
+  prev.addEventListener('click', () => step(-1));
+  next.addEventListener('click', () => step(1));
+  dialog.querySelector('[data-lb-close]')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+</script>

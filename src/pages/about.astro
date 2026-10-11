@@ -1,0 +1,123 @@
+---
+import type { ImageMetadata } from 'astro';
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+import Cover from '../components/Cover.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Tag from '../components/Tag.astro';
+import Badge from '../components/Badge.astro';
+import { profile } from '../data/site';
+import { bio, keywords, researchQuote, researchInterests, timeline, skills, languages } from '../data/about';
+
+// 個人照：放入 src/assets/profile/portrait.jpg 即自動顯示
+const portrait = Object.values(
+  import.meta.glob<{ default: ImageMetadata }>('/src/assets/profile/portrait.{jpg,jpeg,png,webp}', { eager: true }),
+)[0]?.default;
+const contacts = [
+  ['Email', profile.email, `mailto:${profile.email}`],
+  ...profile.socials.map((s) => [s.label.split(' ')[0], s.href.replace(/^https:\/\//, ''), s.href]),
+];
+---
+<Layout title="關於我" description={bio}>
+  <section class="container-page grid items-center gap-12 py-16 md:py-24 lg:grid-cols-[520px_1fr] lg:gap-20">
+    <div class="card aspect-[4/5]">
+      <Cover src={portrait} alt={profile.name} eager widths={[520, 1040]} sizes="520px" class="size-full" />
+    </div>
+    <div class="flex flex-col gap-6">
+      <p class="eyebrow">About Me — {profile.nameEn}</p>
+      <h1 class="text-4xl font-bold md:text-[52px]">你好，我是{profile.name}。</h1>
+      <p class="text-[17px] leading-[1.8] text-muted">{bio}</p>
+      <div class="flex flex-wrap gap-2">{keywords.map((k) => <Tag>{k}</Tag>)}</div>
+      <div class="flex flex-wrap gap-4">
+        <Button href={profile.cv}>下載 CV (PDF)</Button>
+        <Button href="#contact" variant="secondary" arrow={false}>聯絡我</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative isolate border-y-[1.5px] border-ink py-20 md:py-24">
+    <div aria-hidden="true" class="absolute inset-0 -z-10 halftone-mint riso-grain"></div>
+    <div class="container-page flex flex-col gap-10">
+      <SectionHeader eyebrow="01 — Research Interest" title="我想研究的問題" dark>
+        <p class="max-w-md text-lg leading-[1.6] font-bold">{researchQuote}</p>
+      </SectionHeader>
+      <div class="grid gap-6 md:grid-cols-3">
+        {researchInterests.map((r) => (
+          <div class="flex flex-col gap-3.5 rounded-[4px] border-[1.5px] border-ink bg-surface p-7">
+            <span class="self-start rounded-full bg-sun px-2.5 py-0.5 font-mono text-sm font-medium">{r.key}</span>
+            <h3 class="text-[22px] font-bold">{r.title}</h3>
+            <p class="leading-[1.7]">{r.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page flex flex-col gap-12 py-24">
+    <SectionHeader eyebrow="02 — Experience" title="學經歷時間軸" desc="依時間倒序：職場、訓練、品牌經營與學歷。" />
+    <ol>
+      {timeline.map((t) => (
+        <li class="grid gap-3 border-t border-ink/25 py-7 md:grid-cols-[194px_24px_1fr] md:gap-6">
+          <span class="font-mono text-sm font-medium text-muted">{t.period}</span>
+          <span aria-hidden="true" class:list={['mt-1.5 hidden size-3 rounded-full border-[1.5px] border-ink md:block', t.current ? 'bg-sun' : 'bg-surface']}></span>
+          <div class="flex flex-col gap-1.5">
+            <h3 class="flex flex-wrap items-center gap-3 text-xl font-bold">{t.title}{t.current && <Badge>CURRENT</Badge>}</h3>
+            <p class="font-medium">{t.org}</p>
+            <p class="leading-[1.65] text-muted">{t.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="container-page flex flex-col gap-12 pb-24">
+    <SectionHeader eyebrow="03 — Skills" title="技能矩陣" desc="介面研究、3D 視覺、前端開發與互動遊戲四個面向。" />
+    <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      {skills.map((s) => (
+        <div class="card flex flex-col gap-5 p-7">
+          <div class="flex items-center gap-3">
+            <span class="misreg grid size-11 place-items-center rounded-[4px] bg-mint text-lg font-bold">{s.key}</span>
+            <span class="flex flex-col"><span class="text-lg font-bold">{s.title}</span><span class="font-mono text-xs text-muted">{s.en}</span></span>
+          </div>
+          <ul class="flex flex-col gap-3">
+            {s.items.map((i) => <li class="flex items-center gap-2.5"><span class="size-2 bg-sun" aria-hidden="true"></span>{i}</li>)}
+          </ul>
+          <div class="mt-auto flex flex-wrap gap-2">{s.tools.map((t) => <Tag>{t}</Tag>)}</div>
+        </div>
+      ))}
+    </div>
+    <p class="text-sm text-muted">{languages}</p>
+  </section>
+
+  <section id="contact" class="container-page grid scroll-mt-24 gap-12 pb-28 lg:grid-cols-2">
+    <div class="flex flex-col gap-6">
+      <p class="eyebrow">04 — Contact</p>
+      <h2 class="text-4xl font-bold">一起聊聊？</h2>
+      <p class="text-muted">研究合作、實習、接案或只是想打聲招呼，都歡迎。</p>
+      <ul>
+        {contacts.map(([k, v, href]) => (
+          <li class="border-b border-ink/25">
+            <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener" class="flex items-center justify-between gap-4 py-4 hover:text-muted">
+              <span class="flex items-center gap-6"><span class="w-24 font-mono text-xs text-muted uppercase">{k}</span><span class="text-[17px] font-medium break-all">{v}</span></span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <form data-mail-form class="card flex flex-col gap-5 p-8 md:p-10">
+      <label class="flex flex-col gap-2 text-[13px] font-medium">姓名 Name<input name="name" required class="h-12 rounded-[3px] border-[1.5px] border-ink/40 bg-canvas px-4 text-sm font-normal" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium">訊息 Message<textarea name="message" required rows="6" class="rounded-[3px] border-[1.5px] border-ink/40 bg-canvas p-4 text-sm font-normal"></textarea></label>
+      <button type="submit" class="misreg self-start rounded-full border-[1.5px] border-ink bg-mint px-6 py-3 text-[15px] font-bold">用 Email 送出 →</button>
+      <p class="text-xs text-muted">送出後會開啟你的郵件程式。</p>
+    </form>
+  </section>
+</Layout>
+
+<script define:vars={{ email: profile.email }}>
+  document.querySelector('[data-mail-form]')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    location.href = `mailto:${email}?subject=${encodeURIComponent('作品集來信：' + f.get('name'))}&body=${encodeURIComponent(f.get('message'))}`;
+  });
+</script>
